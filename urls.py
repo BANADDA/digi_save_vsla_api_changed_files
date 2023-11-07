@@ -113,9 +113,9 @@ urlpatterns = [
     path('social_fund_applications/', social_fund_applications_list, name='social_fund_applications_list'),
     path('social_fund_applications/<int:pk>/', social_fund_applications_detail, name='social_fund_applications_detail'),
 
-    # CycleStartMeeting views
-    path('cycle_start_meetings/', cycle_start_meeting_list, name='cycle_start_meeting_list'),
-    path('cycle_start_meetings/<int:pk>/', cycle_start_meeting_detail, name='cycle_start_meeting_detail'),
+    # # CycleStartMeeting views
+    # path('cycle_start_meetings/', cycle_start_meeting_list, name='cycle_start_meeting_list'),
+    # path('cycle_start_meetings/<int:pk>/', cycle_start_meeting_detail, name='cycle_start_meeting_detail'),
 
     # PaymentInfo views
     path('payment_info/', payment_info_list, name='payment_info_list'),

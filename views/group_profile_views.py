@@ -50,10 +50,9 @@ def group_profile_list(request):
 
         if request.method == 'GET':
             group_profiles = GroupProfile.objects.all()
-            group_profile_data = ()
+            group_profile_data = []
             for group_profile in group_profiles:
                 group_profile_data.append({
-                    'id': group_profile.id,
                     'groupName': group_profile.groupName,
                     'countryOfOrigin': group_profile.countryOfOrigin,
                     'meetingLocation': group_profile.meetingLocation,

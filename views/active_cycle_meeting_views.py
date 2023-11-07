@@ -1,22 +1,52 @@
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from digi_save_vsla_api.models import ActiveCycleMeeting
+from digi_save_vsla_api.models import ActiveCycleMeeting, CycleMeeting, GroupProfile
 from digi_save_vsla_api.serializers import ActiveCycleMeetingSerializer
 
 @api_view(['GET', 'POST'])
 def active_cycle_meeting_list(request):
-    if request.method == 'GET':
-        active_cycle_meetings = ActiveCycleMeeting.objects.all()
-        serializer = ActiveCycleMeetingSerializer(active_cycle_meetings, many=True)
-        return Response(serializer.data)
+    print("Received data:", request.data)
+    data = request.data
+    try:
+        if request.method == 'POST':
+            group_id = data.get('group_id')
+            cycleMeetingID = data.get('cycleMeetingID')
 
-    elif request.method == 'POST':
-        serializer = ActiveCycleMeetingSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Get the GroupProfile instance based on the group_id
+            group_profile = GroupProfile.objects.get(id=group_id)
+            cycleMeetingID = CycleMeeting.objects.get(id=cycleMeetingID)
+
+            constitution = ActiveCycleMeeting(
+                group_id=group_profile,
+                cycleMeetingID=cycleMeetingID,
+            )
+            constitution.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'ActiveCycleMeeting created successfully',
+            })
+
+        if request.method == 'GET':
+            constitutions = ActiveCycleMeeting.objects.all()
+            constitution_data = []
+            for constitution in constitutions:
+                constitution_data.append({
+                    'group_id': constitution.group_id,
+                    'cycleMeetingID': constitution.cycleMeetingID,
+                })
+            return JsonResponse({
+                'status': 'success',
+                'constitutions': constitution_data,
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e),
+        }, status=500)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def active_cycle_meeting_detail(request, pk):

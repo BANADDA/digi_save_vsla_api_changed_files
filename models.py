@@ -94,37 +94,36 @@ class Positions(models.Model):
         return self.name
     
 class AssignedPositions(models.Model):
-    position_id = models.ForeignKey(Positions, on_delete=models.CASCADE)
+    position_id = models.IntegerField(default=None, blank=True, null=True)
     member_id = models.ForeignKey(GroupMembers, on_delete=models.CASCADE)
     group_id = models.ForeignKey(GroupProfile, on_delete=models.CASCADE)
-    sync_flag = models.IntegerField(default=1)
+    sync_flag = models.IntegerField(default=0)
     
     def __str__(self):
         return self.position
 
 class GroupForm(models.Model):
-    group_profile = models.ForeignKey(GroupProfile, on_delete=models.CASCADE)
-    group_id = models.IntegerField()
-    logged_in_users_id = models.IntegerField()
-    constitution = models.ForeignKey(ConstitutionTable, on_delete=models.CASCADE)
-    cycle_schedule = models.ForeignKey(CycleSchedules, on_delete=models.CASCADE)
-    group_member = models.ForeignKey(GroupMembers, on_delete=models.CASCADE)
-    assigned_position = models.ForeignKey(AssignedPositions, on_delete=models.CASCADE)
-    sync_flag = models.IntegerField(default=1)
+    group_profile_id = models.ForeignKey(GroupProfile, on_delete=models.CASCADE)
+    group_id = models.IntegerField(default=None, blank=True, null=True)
+    logged_in_users_id = models.ForeignKey(Users, on_delete=models.CASCADE)
+    constitution_id = models.ForeignKey(ConstitutionTable, on_delete=models.CASCADE)
+    cycle_schedule_id = models.ForeignKey(CycleSchedules, on_delete=models.CASCADE)
+    group_member_id = models.ForeignKey(GroupMembers, on_delete=models.CASCADE)
+    assigned_position_id = models.ForeignKey(AssignedPositions, on_delete=models.CASCADE)
+    sync_flag = models.IntegerField(default=0)
     
     def __str__(self):
         return self.group_id
     
 class SavingsAccount(models.Model):
-    logged_in_users_id = models.IntegerField()
+    logged_in_users_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     date = models.TextField()
     purpose = models.TextField()
     amount = models.FloatField()
     sync_flag = models.IntegerField(default=1)
     
     group = models.ForeignKey(GroupForm, on_delete=models.CASCADE)
-    users = models.ForeignKey(Users, on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return self.group
 
@@ -155,7 +154,7 @@ class CycleMeeting(models.Model):
     totalSocialFund = models.IntegerField()
     socialFundContributions = models.TextField()
     sharePurchases = models.TextField()
-    sync_flag = models.IntegerField(default=1)
+    sync_flag = models.IntegerField(default=0)
     
     group_id = models.ForeignKey(GroupForm, on_delete=models.CASCADE)
     
@@ -196,19 +195,17 @@ class MemberShares(models.Model):
     
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     users = models.ForeignKey(Users, on_delete=models.CASCADE)
-    cycle_id = models.ForeignKey(GroupForm, on_delete=models.CASCADE)
-    cyclemeeting = models.ForeignKey(CycleMeeting, on_delete=models.CASCADE)
+    group_id = models.ForeignKey(GroupForm, on_delete=models.CASCADE)
+    cycle_id = models.ForeignKey(CycleMeeting, on_delete=models.CASCADE)
     sync_flag = models.IntegerField(default=1)
     
     def __str__(self):
         return self.group_id
     
 class WelfareAccount(models.Model):
-    logged_in_users_id = models.IntegerField()
+    logged_in_users_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     amount = models.FloatField()
-    
     group_id = models.ForeignKey(GroupForm, on_delete=models.CASCADE)
-    users = models.ForeignKey(Users, on_delete=models.CASCADE)
     meeting_id = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     cycle_id = models.ForeignKey(CycleMeeting, on_delete=models.CASCADE)
     sync_flag = models.IntegerField(default=1)
@@ -333,7 +330,7 @@ class Fines(models.Model):
     cycleId = models.ForeignKey(CycleMeeting, on_delete=models.CASCADE)
     meetingId = models.ForeignKey(Meeting, on_delete=models.CASCADE)
     savingsAccountId = models.ForeignKey(SavingsAccount, on_delete=models.CASCADE)
-    sync_flag = models.IntegerField(default=1)
+    sync_flag = models.IntegerField(default=0)
     
     def __str__(self):
         return self.groupId
@@ -343,7 +340,7 @@ class GroupCycleStatus(models.Model):
     group = models.ForeignKey(GroupProfile, on_delete=models.CASCADE)
     cycleId = models.ForeignKey(CycleMeeting, on_delete=models.CASCADE)
     is_cycle_started = models.BooleanField(default=False)
-    sync_flag = models.IntegerField(default=1)
+    sync_flag = models.IntegerField(default=0)
     
     def __str__(self):
         return self.group

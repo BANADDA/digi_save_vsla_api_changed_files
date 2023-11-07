@@ -30,7 +30,7 @@ def positions_list(request):
 
         if request.method == 'GET':
             groupMembers = Positions.objects.all()
-            group_member_data = ()
+            group_member_data = []
             for group_member in groupMembers:
                 group_member_data.append({
                     'name': group_member.name,

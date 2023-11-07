@@ -32,21 +32,22 @@ def group_members_list(request):
 
             return JsonResponse({
                 'status': 'success',
-                'message': 'Cycle Schedle created successfully',
+                'message': 'Group members added successfully',
             })
 
         if request.method == 'GET':
             groupMembers = GroupMembers.objects.all()
-            group_member_data = ()
+            print('Group members: ', groupMembers)
+            group_member_data = []
             for group_member in groupMembers:
                 group_member_data.append({
-                    'group_id': group_member.group_id,
-                    'user_id': group_member.user_id,
+                    'group_id': group_member.group_id.id,
+                    'user_id': group_member.user_id.id,
                     'sync_flag': group_member.sync_flag,
                 })
             return JsonResponse({
                 'status': 'success',
-                'CycleSchedules': group_member_data,
+                'groupMembers': group_member_data,
             })
 
     except Exception as e:

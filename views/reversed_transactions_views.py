@@ -3,20 +3,68 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from digi_save_vsla_api.models import ReversedTransactions
 from digi_save_vsla_api.serializers import ReversedTransactionsSerializer
+from digi_save_vsla_api.models import *
+from django.http import JsonResponse
 
 @api_view(['GET', 'POST'])
 def reversed_transactions_list(request):
-    if request.method == 'GET':
-        reversed_transactions = ReversedTransactions.objects.all()
-        serializer = ReversedTransactionsSerializer(reversed_transactions, many=True)
-        return Response(serializer.data)
+    print("Received data:", request.data)
+    data = request.data
 
-    elif request.method == 'POST':
-        serializer = ReversedTransactionsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        if request.method == 'POST':
+            group_id = data.get('group_id')
+            savings_account_id = data.get('savings_account_id')
+            logged_in_users_id = data.get('logged_in_users_id')
+            reversed_amount = data.get('reversed_amount')
+            date = data.get('date')
+            purpose = data.get('purpose')
+            reversed_data = data.get('reversed_data')
+
+            # Get the related instances based on their IDs
+            group = GroupProfile.objects.get(id=group_id)
+            savings_account = SavingsAccount.objects.get(id=savings_account_id)
+            logged_in_users = Users.objects.get(id=logged_in_users_id)
+
+            reversed_transaction = ReversedTransactions(
+                group=group,
+                savings_account=savings_account,
+                logged_in_users=logged_in_users,
+                reversed_amount=reversed_amount,
+                date=date,
+                purpose=purpose,
+                reversed_data=reversed_data,
+            )
+            reversed_transaction.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Reversed transaction created successfully',
+            })
+
+        if request.method == 'GET':
+            reversed_transactions = ReversedTransactions.objects.all()
+            reversed_transaction_data = []
+            for reversed_transaction in reversed_transactions:
+                reversed_transaction_data.append({
+                    'group_id': reversed_transaction.group.id,
+                    'savings_account_id': reversed_transaction.savings_account.id,
+                    'logged_in_users_id': reversed_transaction.logged_in_users.id,
+                    'reversed_amount': reversed_transaction.reversed_amount,
+                    'date': reversed_transaction.date,
+                    'purpose': reversed_transaction.purpose,
+                    'reversed_data': reversed_transaction.reversed_data,
+                })
+            return JsonResponse({
+                'status': 'success',
+                'reversed_transactions': reversed_transaction_data,
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e),
+        }, status=500)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def reversed_transactions_detail(request, pk):

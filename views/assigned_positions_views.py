@@ -8,47 +8,43 @@ from digi_save_vsla_api.serializers import AssignedPositionsSerializer
 
 @api_view(['GET', 'POST'])
 def assigned_positions_list(request):
+    print("Received data:", request.data)
     data = request.data
-    print("Received data:", data)
+
     try:
         if request.method == 'POST':
-            
-            print("Received data:", data)
             position_id = data.get('position_id')
-            group_id = data.get('group_id')
             member_id = data.get('member_id')
-            sync_flag = data.get('sync_flag')
+            group_id = data.get('group_id')
 
-            #  # Get the GroupProfile instance based on the position_id
-            group_id = GroupProfile.objects.get(id=group_id)
-            position_id = Positions.objects.get(id=position_id)
-            member_id = GroupMembers.objects.get(id=member_id)
+            # Get the related instances based on their IDs
+            member = GroupMembers.objects.get(id=member_id)
+            group = GroupProfile.objects.get(id=group_id)
 
-
-            group_members = AssignedPositions(
+            assigned_position = AssignedPositions(
                 position_id=position_id,
-                member_id=member_id,
-                sync_flag=sync_flag,
+                member_id=member,
+                group_id=group,
             )
-            group_members.save()
+            assigned_position.save()
 
             return JsonResponse({
                 'status': 'success',
-                'message': 'AssignedPositions created successfully',
+                'message': 'Assigned position created successfully',
             })
 
         if request.method == 'GET':
-            groupMembers = AssignedPositions.objects.all()
-            group_member_data = ()
-            for group_member in groupMembers:
-                group_member_data.append({
-                    'position_id': group_member.position_id,
-                    'member_id': group_member.member_id,
-                    'sync_flag': group_member.sync_flag,
+            assigned_positions = AssignedPositions.objects.all()
+            assigned_positions_data = []
+            for assigned_position in assigned_positions:
+                assigned_positions_data.append({
+                    'position_id': assigned_position.position_id,
+                    'member_id': assigned_position.member_id.id,
+                    'group_id': assigned_position.group_id.id,
                 })
             return JsonResponse({
                 'status': 'success',
-                'CycleSchedules': group_member_data,
+                'assigned_positions': assigned_positions_data,
             })
 
     except Exception as e:
@@ -56,6 +52,8 @@ def assigned_positions_list(request):
             'status': 'error',
             'message': str(e),
         }, status=500)
+    
+    
 @api_view(['GET', 'PUT', 'DELETE'])
 def assigned_positions_detail(request, pk):
     try:
